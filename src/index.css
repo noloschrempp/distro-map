@@ -1,0 +1,216 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Custom styles for the map */
+.leaflet-container {
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  height: 100%;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 0.5rem !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  width: 320px !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+.leaflet-popup-close-button {
+  width: 28px !important;
+  height: 28px !important;
+  font-size: 18px !important;
+  color: #6B7280 !important;
+  background: white !important;
+  border-radius: 50% !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  margin: 6px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  border: 1px solid #E5E7EB !important;
+  opacity: 1 !important;
+  line-height: 1 !important;
+  z-index: 10 !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: #374151 !important;
+  background: #F3F4F6 !important;
+  transform: scale(1.05) !important;
+}
+
+.leaflet-popup-tip {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  width: 12px !important;
+  height: 12px !important;
+}
+
+/* Popup header styles */
+.popup-header {
+  @apply relative border-b border-gray-100;
+}
+
+.popup-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(0,0,0,0.05), transparent);
+}
+
+/* Popup content sections */
+.popup-section {
+  @apply py-3 px-4 border-b border-gray-100 last:border-b-0;
+}
+
+.popup-section-title {
+  @apply text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide flex items-center gap-1.5;
+}
+
+/* Tag styles */
+.popup-tag {
+  @apply inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium transition-colors;
+}
+
+.popup-tag-blue {
+  @apply bg-blue-50 text-blue-700 border border-blue-100;
+}
+
+.popup-tag-green {
+  @apply bg-green-50 text-green-700 border border-green-100;
+}
+
+.popup-tag-gray {
+  @apply bg-gray-50 text-gray-700 border border-gray-100;
+}
+
+/* Distance indicator */
+.distance-indicator {
+  @apply flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-md bg-blue-50 text-blue-700 border border-blue-100;
+}
+
+/* Manufacturer tags */
+.manufacturer-tag {
+  @apply inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-50 text-gray-700 border border-gray-100 transition-colors hover:bg-gray-100;
+}
+
+/* Custom scrollbar for the distributor list */
+.distributor-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.distributor-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.distributor-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+.distributor-list::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Always show scrollbar for distributor list */
+.distributor-list {
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+/* Hover effects for clickable items */
+.distributor-list > div:hover {
+  background-color: #f9fafb;
+}
+
+/* Animation for scroll indicator */
+@keyframes gentle-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-gentle-bounce {
+  animation: gentle-bounce 2s infinite ease-in-out;
+}
+
+/* Pulse animation for cluster markers */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.2;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.3;
+  }
+}
+
+/* Clean cluster marker styles */
+.cluster-marker-custom {
+  background: transparent !important;
+  border: none !important;
+}
+
+.cluster-marker-custom div {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.cluster-marker-custom:hover div {
+  transform: scale(1.1);
+}
+
+/* Link hover effects */
+.popup-link {
+  @apply text-gray-600 hover:text-blue-600 transition-colors;
+}
+
+/* Icon containers */
+.popup-icon-container {
+  @apply flex items-center gap-2 text-gray-600;
+}
+
+.popup-icon {
+  @apply flex-shrink-0 text-gray-400;
+}
+
+/* Availability badges */
+.availability-badge {
+  @apply flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors;
+}
+
+.availability-badge-delivery {
+  @apply bg-blue-50 text-blue-700 border border-blue-100;
+}
+
+.availability-badge-pickup {
+  @apply bg-green-50 text-green-700 border border-green-100;
+}
