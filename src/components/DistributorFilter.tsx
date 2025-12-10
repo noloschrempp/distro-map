@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Distributor } from '../models/types';
+import { Distributor, Category } from '../models/types';
 import { Filter, X, Check, Search } from 'lucide-react';
 
 interface DistributorFilterProps {
@@ -7,34 +7,41 @@ interface DistributorFilterProps {
   filteredDistributors: Distributor[]; // Currently filtered distributors for counts
   selectedDistributors: string[];
   onFilterChange: (distributors: string[]) => void;
+  currentProgram?: Category; // Current program filter
 }
 
 export default function DistributorFilter({
   distributors,
   selectedDistributors,
-  onFilterChange
+  onFilterChange,
+  currentProgram = 'ALL'
 }: DistributorFilterProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Get unique distributor names and their total location counts from all distributors
+  // Get unique distributor names and their total location counts from program-filtered distributors
   const { allDistributorNames, totalDistributorCounts } = useMemo(() => {
     const names = new Set<string>();
     const counts = new Map<string, number>();
-    
-    distributors.forEach(d => {
+
+    // Filter distributors by current program first
+    const programFilteredDistributors = currentProgram === 'ALL'
+      ? distributors
+      : distributors.filter(d => d.program === currentProgram);
+
+    programFilteredDistributors.forEach(d => {
       if (d.distributor) {
         names.add(d.distributor);
         counts.set(d.distributor, (counts.get(d.distributor) || 0) + 1);
       }
     });
-    
+
     return {
       allDistributorNames: Array.from(names).sort(),
       totalDistributorCounts: counts
     };
-  }, [distributors]);
+  }, [distributors, currentProgram]);
 
   // Filter distributor names based on search
   const filteredNames = useMemo(() => {
@@ -91,7 +98,7 @@ export default function DistributorFilter({
           <Filter size={14} />
           <span className="text-sm">
             {selectedDistributors.length === 0
-              ? 'Filter by Distributor'
+              ? 'Distributor'
               : `${selectedDistributors.length} Selected`}
           </span>
         </div>

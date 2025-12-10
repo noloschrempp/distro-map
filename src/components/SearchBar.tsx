@@ -131,7 +131,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
         </div>
         <input
           type="text"
-          className="w-full pl-10 pr-4 py-2.5 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-slate-800 text-white placeholder-slate-500 text-sm transition-all duration-200"
+          className="w-full h-10 pl-10 pr-4 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-slate-800 text-white placeholder-slate-500 text-sm transition-all duration-200"
           placeholder="Search locations..."
           value={searchTerm}
           onChange={handleSearch}

@@ -72,7 +72,6 @@ function MapBoundsUpdater({
   // Function to update map bounds
   const updateBounds = () => {
     if (!map || !isMapReady || !map.getPane('mapPane')?._leaflet_pos) {
-      console.warn('Map not ready for bounds update');
       return;
     }
 
@@ -106,7 +105,7 @@ function MapBoundsUpdater({
 
       // Add distributors to bounds
       distributors.forEach(loc => {
-        if (loc.location_lat && loc.location_lon && 
+        if (loc.location_lat && loc.location_lon &&
             !isNaN(loc.location_lat) && !isNaN(loc.location_lon)) {
           bounds.extend([loc.location_lat, loc.location_lon]);
           hasValidPoints = true;
@@ -116,7 +115,7 @@ function MapBoundsUpdater({
       // Add user properties to bounds
       if (userProperties?.length) {
         userProperties.forEach(prop => {
-          if (prop.location_lat && prop.location_lon && 
+          if (prop.location_lat && prop.location_lon &&
               !isNaN(prop.location_lat) && !isNaN(prop.location_lon)) {
             bounds.extend([prop.location_lat, prop.location_lon]);
             hasValidPoints = true;
@@ -126,18 +125,20 @@ function MapBoundsUpdater({
 
       // If we have valid bounds, fit the map to them
       if (hasValidPoints && bounds.isValid()) {
-        map.fitBounds(bounds, { 
+        // Use different zoom levels based on number of markers
+        const maxZoom = distributors.length === 1 ? 14 : distributors.length <= 5 ? 10 : 12;
+        map.fitBounds(bounds, {
           padding: [50, 50],
-          maxZoom: 12,
+          maxZoom: maxZoom,
           animate: true,
           duration: 0.5
         });
       } else {
         // Default view of continental US if no valid points
-        map.setView([39.8283, -98.5795], 4);
+        map.setView([39.8283, -98.5795], 4, { animate: true });
       }
     } catch (error) {
-      console.warn("Error updating map bounds:", error);
+      console.error("Error updating map bounds:", error);
       // Fallback to default view
       map.setView([39.8283, -98.5795], 4);
     }
@@ -164,7 +165,7 @@ function MapBoundsUpdater({
         clearTimeout(boundsUpdateTimeout.current);
       }
     };
-  }, [map, distributors, userProperties, selectedCategory, selectedProperty, selectedDistributor, showNearestDistributors, isMapReady]);
+  }, [map, distributors.length, distributors, userProperties, selectedCategory, selectedProperty, selectedDistributor, showNearestDistributors, isMapReady]);
 
   return null;
 }
@@ -270,15 +271,11 @@ function DistributorMap({
 
   // Update filtered distributors when props change
   useEffect(() => {
-    let filtered = distributors.filter(d => 
-      d.location_lat != null && d.location_lon != null && 
+    // Distributors are already filtered in MapPage, just validate coordinates
+    const filtered = distributors.filter(d =>
+      d.location_lat != null && d.location_lon != null &&
       !isNaN(d.location_lat) && !isNaN(d.location_lon)
     );
-
-    // Apply category filter
-    if (selectedCategory !== 'ALL') {
-      filtered = filtered.filter(d => d.program === selectedCategory);
-    }
 
     setFilteredDistributors(filtered);
 
@@ -303,7 +300,7 @@ function DistributorMap({
         currentLocation: { width: 40, height: 40, iconSize: 20 }
       });
     }
-  }, [distributors, selectedCategory, userProperties?.length]);
+  }, [distributors, userProperties?.length]);
 
   return (
     <MapContainer
@@ -320,7 +317,7 @@ function DistributorMap({
       <ZoomControl position="bottomright" />
       
       <MapBoundsUpdater
-        distributors={filteredDistributors}
+        distributors={distributors}
         userProperties={userProperties}
         selectedProperty={selectedProperty}
         selectedDistributor={selectedDistributor}
