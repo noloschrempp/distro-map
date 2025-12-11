@@ -110,7 +110,7 @@ export default function DistributorFilter({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-slate-800 rounded-lg shadow-xl border border-slate-700 z-50">
+        <div className="mt-2 bg-slate-800 rounded-lg shadow-xl border border-slate-700">
           <div className="p-3 border-b border-slate-700">
             <div className="relative">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />

@@ -14,27 +14,31 @@ interface DistributorMapProps {
   selectedDistributor?: Distributor | null;
   onSelectProperty?: (property: Property) => void;
   showNearestDistributors?: boolean;
+  forceBoundsResetRef?: React.MutableRefObject<boolean>;
 }
 
-function MapBoundsUpdater({ 
-  distributors, 
-  userProperties, 
+function MapBoundsUpdater({
+  distributors,
+  userProperties,
   selectedProperty,
   selectedDistributor,
   selectedCategory,
-  showNearestDistributors
-}: { 
-  distributors: Distributor[]; 
+  showNearestDistributors,
+  forceBoundsResetRef
+}: {
+  distributors: Distributor[];
   userProperties?: Property[];
   selectedProperty?: Property | null;
   selectedDistributor?: Distributor | null;
   selectedCategory: Category;
   showNearestDistributors?: boolean;
+  forceBoundsResetRef?: React.MutableRefObject<boolean>;
 }) {
   const map = useMap();
   const [isMapReady, setIsMapReady] = useState(false);
   const boundsUpdateTimeout = useRef<NodeJS.Timeout>();
   const mapInitialized = useRef(false);
+  const prevDistributorsCount = useRef(distributors.length);
 
   // Listen for centerMap events
   useEffect(() => {
@@ -76,7 +80,51 @@ function MapBoundsUpdater({
     }
 
     try {
-      // If we have a selected property and showNearestDistributors is true,
+      // PRIORITY 0: Explicit bounds reset (e.g., from clearing filters)
+      // This handles the React 18 batching issue where multiple state updates
+      // happen simultaneously. By using a ref instead of state, we provide a
+      // synchronous signal that survives the batching cycle and ensures the
+      // map resets to show all distributors when filters are cleared.
+      if (forceBoundsResetRef?.current) {
+        forceBoundsResetRef.current = false; // Reset the flag
+
+        // Force fit to all distributors
+        const bounds = L.latLngBounds([]);
+        let hasValidPoints = false;
+
+        distributors.forEach(loc => {
+          if (loc.location_lat && loc.location_lon &&
+              !isNaN(loc.location_lat) && !isNaN(loc.location_lon)) {
+            bounds.extend([loc.location_lat, loc.location_lon]);
+            hasValidPoints = true;
+          }
+        });
+
+        if (userProperties?.length) {
+          userProperties.forEach(prop => {
+            if (prop.location_lat && prop.location_lon &&
+                !isNaN(prop.location_lat) && !isNaN(prop.location_lon)) {
+              bounds.extend([prop.location_lat, prop.location_lon]);
+              hasValidPoints = true;
+            }
+          });
+        }
+
+        if (hasValidPoints && bounds.isValid()) {
+          const maxZoom = distributors.length === 1 ? 14 : distributors.length <= 5 ? 10 : 12;
+          map.fitBounds(bounds, {
+            padding: [50, 50],
+            maxZoom: maxZoom,
+            animate: true,
+            duration: 0.5
+          });
+        } else {
+          map.setView([39.8283, -98.5795], 4, { animate: true });
+        }
+        return; // Exit early - don't check other priorities
+      }
+
+      // PRIORITY 1: If we have a selected property and showNearestDistributors is true,
       // zoom to that location with a closer view
       if (selectedProperty && showNearestDistributors) {
         if (selectedProperty.location_lat && selectedProperty.location_lon) {
@@ -148,24 +196,45 @@ function MapBoundsUpdater({
   useEffect(() => {
     if (!map || !isMapReady) return;
 
+    // Detect if we're transitioning from filtered to unfiltered (significant increase)
+    // This allows us to skip the 100ms delay for better UX when clearing filters
+    const distributorCountIncreased = distributors.length > prevDistributorsCount.current * 2;
+    const isUnfiltering = distributorCountIncreased &&
+                         !selectedProperty &&
+                         !showNearestDistributors &&
+                         !selectedDistributor;
+
+    // Update the ref for next comparison
+    prevDistributorsCount.current = distributors.length;
+
     // Clear any pending timeout
     if (boundsUpdateTimeout.current) {
       clearTimeout(boundsUpdateTimeout.current);
     }
 
-    // Delay bounds update to prevent race conditions
-    boundsUpdateTimeout.current = setTimeout(() => {
+    // Skip delay if we're explicitly resetting or doing a major unfilter
+    const shouldSkipDelay = forceBoundsResetRef?.current || isUnfiltering;
+
+    if (shouldSkipDelay) {
+      // Execute immediately for filter clears
       if (map.getPane('mapPane')?._leaflet_pos) {
         updateBounds();
       }
-    }, 100);
+    } else {
+      // Delay bounds update to prevent race conditions for normal updates
+      boundsUpdateTimeout.current = setTimeout(() => {
+        if (map.getPane('mapPane')?._leaflet_pos) {
+          updateBounds();
+        }
+      }, 100);
+    }
 
     return () => {
       if (boundsUpdateTimeout.current) {
         clearTimeout(boundsUpdateTimeout.current);
       }
     };
-  }, [map, distributors.length, distributors, userProperties, selectedCategory, selectedProperty, selectedDistributor, showNearestDistributors, isMapReady]);
+  }, [map, distributors, userProperties, selectedCategory, selectedProperty, selectedDistributor, showNearestDistributors, isMapReady]);
 
   return null;
 }
@@ -177,7 +246,8 @@ function DistributorMap({
   selectedProperty,
   selectedDistributor,
   onSelectProperty,
-  showNearestDistributors
+  showNearestDistributors,
+  forceBoundsResetRef
 }: DistributorMapProps) {
   const [filteredDistributors, setFilteredDistributors] = useState<Distributor[]>([]);
   const [mapReady, setMapReady] = useState(false);
@@ -323,6 +393,7 @@ function DistributorMap({
         selectedDistributor={selectedDistributor}
         selectedCategory={selectedCategory}
         showNearestDistributors={showNearestDistributors}
+        forceBoundsResetRef={forceBoundsResetRef}
       />
 
       {mapReady && (

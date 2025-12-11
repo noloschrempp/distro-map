@@ -94,7 +94,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-50 overflow-hidden">
+        <div className="mt-2 bg-slate-800 border border-slate-700 rounded-lg shadow-xl overflow-hidden">
           <div className="max-h-72 overflow-y-auto p-2">
             {/* All Programs Option */}
             <button

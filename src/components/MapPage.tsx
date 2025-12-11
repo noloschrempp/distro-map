@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Category, Distributor, Property } from '../models/types';
 import DistributorMap from './DistributorMap';
@@ -29,6 +29,7 @@ export default function MapPage() {
   const [locationError, setLocationError] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const forceBoundsResetRef = useRef(false);
 
   // Map program URL param to Category type
   const selectedCategory: Category = useMemo(() => {
@@ -96,6 +97,13 @@ export default function MapPage() {
     }
     fetchInitialData();
   }, []);
+
+  // Clear selected distributor when filters change
+  // This ensures that changing filters shows all matching results rather than
+  // staying zoomed on a previously selected distributor
+  useEffect(() => {
+    setSelectedDistributor(null);
+  }, [selectedCategories, selectedDistributors, searchQuery]);
 
   // Handle finding distributors near user's location
   const handleFindNearMe = () => {
@@ -172,6 +180,7 @@ export default function MapPage() {
 
   // Clear all filters
   const handleClearFilters = () => {
+    forceBoundsResetRef.current = true;
     setSelectedDistributors([]);
     setSelectedCategories(['ALL']);
     setSearchQuery('');
@@ -179,6 +188,7 @@ export default function MapPage() {
     setShowNearestDistributors(false);
     setUserLocation(null);
     setLocationError(null);
+    setSelectedDistributor(null);
   };
 
   // Handle share link - open modal
@@ -418,6 +428,7 @@ export default function MapPage() {
                   selectedProperty={selectedProperty}
                   selectedDistributor={selectedDistributor}
                   showNearestDistributors={showNearestDistributors}
+                  forceBoundsResetRef={forceBoundsResetRef}
                 />
               )}
             </div>
