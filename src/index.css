@@ -20,12 +20,58 @@
   height: 100%;
 }
 
+/* Smooth map panning and zooming */
+.leaflet-zoom-animated {
+  transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Smooth marker transitions */
+.custom-div-icon {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.custom-div-icon:hover {
+  transform: scale(1.15);
+  z-index: 1000 !important;
+}
+
+/* Smooth marker appearance */
+.leaflet-marker-icon {
+  animation: markerFadeIn 0.4s ease-out;
+}
+
+@keyframes markerFadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(-20px);
+  }
+  60% {
+    transform: scale(1.05) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 .leaflet-popup-content-wrapper {
   border-radius: 0.5rem !important;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
   overflow: hidden !important;
   padding: 0 !important;
   width: 320px !important;
+  animation: popupFadeIn 0.3s ease-out;
+}
+
+@keyframes popupFadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .leaflet-popup-content {
@@ -175,15 +221,26 @@
 .cluster-marker-custom {
   background: transparent !important;
   border: none !important;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .cluster-marker-custom div {
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .cluster-marker-custom:hover div {
   transform: scale(1.1);
+}
+
+/* Smooth cluster expand/collapse */
+.leaflet-marker-pane .leaflet-marker-icon {
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Cluster spiderfy animation */
+.marker-cluster-animated {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* Link hover effects */

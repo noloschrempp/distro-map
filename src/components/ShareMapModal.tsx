@@ -25,8 +25,10 @@ export const ShareMapModal: React.FC<ShareMapModalProps> = ({
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopied(false), 2000);
+      // Auto-close modal after successful copy
+      setTimeout(() => {
+        onClose();
+      }, 1500);
     } catch (err) {
       console.error('Failed to copy URL:', err);
     }
@@ -66,7 +68,7 @@ export const ShareMapModal: React.FC<ShareMapModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-6 pb-8">
           <p className="text-gray-600 text-sm mb-4">
             Share this link with your customers to show them the current filtered distributor map view.
           </p>
@@ -112,36 +114,6 @@ export const ShareMapModal: React.FC<ShareMapModalProps> = ({
               <strong>Note:</strong> This URL includes all current filters (category, distributors, search) and will display the exact view you're sharing.
             </p>
           </div>
-        </div>
-
-        {/* Footer */}
-        <div className="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg font-medium transition-colors duration-150"
-          >
-            Close
-          </button>
-          <button
-            onClick={handleCopyToClipboard}
-            className={`px-6 py-2 rounded-lg font-medium transition-all duration-200 ${
-              copied
-                ? 'bg-green-500 text-white'
-                : 'bg-blue-500 hover:bg-blue-600 text-white'
-            }`}
-          >
-            {copied ? (
-              <span className="flex items-center gap-2">
-                <Check className="w-4 h-4" />
-                Copied to Clipboard
-              </span>
-            ) : (
-              <span className="flex items-center gap-2">
-                <Copy className="w-4 h-4" />
-                Copy Link
-              </span>
-            )}
-          </button>
         </div>
       </div>
     </div>

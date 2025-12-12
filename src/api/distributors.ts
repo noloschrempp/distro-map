@@ -4,7 +4,7 @@ import { mockDistributors } from '../data/distributors';
 import { generateLargeDistributorDataset } from '../data/largeDistributors';
 
 // Toggle this to test with large dataset (500+ items) for performance testing
-const USE_LARGE_DATASET = false;
+const USE_LARGE_DATASET = true;
 
 /**
  * Get distributors from database
@@ -21,7 +21,7 @@ export async function getDistributors(category?: string, search?: string): Promi
 
     // For now, use mock data (can switch to large dataset for testing)
     let distributors = USE_LARGE_DATASET
-      ? generateLargeDistributorDataset(500)
+      ? generateLargeDistributorDataset(200)
       : [...mockDistributors];
 
     // Parse the distribution_center_manufacturers field if it's a string

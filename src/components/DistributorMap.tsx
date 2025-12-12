@@ -6,6 +6,37 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Phone, MapPin } from 'lucide-react';
 
+// Custom component to handle smooth cluster zooming
+function ClusterZoomHandler() {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map) return;
+
+    // Store the original fitBounds method
+    const originalFitBounds = map.fitBounds.bind(map);
+
+    // Override fitBounds to use flyToBounds instead for smooth animation
+    (map as any).fitBounds = function(bounds: L.LatLngBoundsExpression, options?: L.FitBoundsOptions) {
+      console.log('fitBounds called with options:', options);
+      // Always use flyToBounds for smooth animation
+      return map.flyToBounds(bounds, {
+        ...options,
+        duration: 2.0,        // Much slower, very smooth
+        easeLinearity: 0.15,  // Even smoother easing curve
+        animate: true
+      });
+    };
+
+    // Cleanup: restore original method
+    return () => {
+      (map as any).fitBounds = originalFitBounds;
+    };
+  }, [map]);
+
+  return null;
+}
+
 interface DistributorMapProps {
   distributors: Distributor[];
   selectedCategory: Category;
@@ -44,7 +75,10 @@ function MapBoundsUpdater({
   useEffect(() => {
     const handleCenterMap = (e: CustomEvent) => {
       const { lat, lon } = e.detail;
-      map.setView([lat, lon], 14, { animate: true });
+      map.flyTo([lat, lon], 14, {
+        duration: 1.5, // Smooth 1.5 second animation
+        easeLinearity: 0.25
+      });
     };
 
     window.addEventListener('centerMap' as any, handleCenterMap as any);
@@ -116,10 +150,14 @@ function MapBoundsUpdater({
             padding: [50, 50],
             maxZoom: maxZoom,
             animate: true,
-            duration: 0.5
+            duration: 1.0,
+            easeLinearity: 0.25
           });
         } else {
-          map.setView([39.8283, -98.5795], 4, { animate: true });
+          map.flyTo([39.8283, -98.5795], 4, {
+            duration: 1.2,
+            easeLinearity: 0.25
+          });
         }
         return; // Exit early - don't check other priorities
       }
@@ -128,10 +166,13 @@ function MapBoundsUpdater({
       // zoom to that location with a closer view
       if (selectedProperty && showNearestDistributors) {
         if (selectedProperty.location_lat && selectedProperty.location_lon) {
-          map.setView(
+          map.flyTo(
             [selectedProperty.location_lat, selectedProperty.location_lon],
             10,
-            { animate: true, duration: 0.5 }
+            {
+              duration: 1.2,
+              easeLinearity: 0.25
+            }
           );
           return;
         }
@@ -139,10 +180,13 @@ function MapBoundsUpdater({
 
       // If a distributor is selected, focus on it
       if (selectedDistributor?.location_lat && selectedDistributor?.location_lon) {
-        map.setView(
+        map.flyTo(
           [selectedDistributor.location_lat, selectedDistributor.location_lon],
           14,
-          { animate: true, duration: 0.5 }
+          {
+            duration: 1.2,
+            easeLinearity: 0.25
+          }
         );
         return;
       }
@@ -179,16 +223,23 @@ function MapBoundsUpdater({
           padding: [50, 50],
           maxZoom: maxZoom,
           animate: true,
-          duration: 0.5
+          duration: 1.0,
+          easeLinearity: 0.25
         });
       } else {
         // Default view of continental US if no valid points
-        map.setView([39.8283, -98.5795], 4, { animate: true });
+        map.flyTo([39.8283, -98.5795], 4, {
+          duration: 1.2,
+          easeLinearity: 0.25
+        });
       }
     } catch (error) {
       console.error("Error updating map bounds:", error);
       // Fallback to default view
-      map.setView([39.8283, -98.5795], 4);
+      map.flyTo([39.8283, -98.5795], 4, {
+        duration: 1.0,
+        easeLinearity: 0.25
+      });
     }
   };
 
@@ -396,6 +447,8 @@ function DistributorMap({
         forceBoundsResetRef={forceBoundsResetRef}
       />
 
+      <ClusterZoomHandler />
+
       {mapReady && (
         <MarkerClusterGroup
           chunkedLoading
@@ -404,6 +457,8 @@ function DistributorMap({
           spiderfyOnMaxZoom={true}
           showCoverageOnHover={false}
           zoomToBoundsOnClick={true}
+          animate={true}
+          animateAddingMarkers={true}
           iconCreateFunction={(cluster) => {
             const count = cluster.getChildCount();
             let size = 16;
