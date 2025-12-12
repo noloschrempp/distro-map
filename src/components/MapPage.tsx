@@ -285,20 +285,12 @@ export default function MapPage() {
       <header className="bg-slate-900 border-b border-slate-800">
         <div className="w-full px-4 py-2.5 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsDrawerOpen(!isDrawerOpen)}
-              className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors h-10 w-10 flex items-center justify-center"
-              data-drawer-toggle
-              aria-label="Toggle programs menu"
-            >
-              <Menu size={20} />
-            </button>
             <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg h-10 w-10 flex items-center justify-center">
               <Compass size={20} className="text-white" strokeWidth={2.5} />
             </div>
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-semibold text-white">
-                {selectedCategory === 'ALL' ? 'All Programs' : selectedCategory}
+                Sibi Maps
               </h1>
               <button
                 onClick={handleShareLink}

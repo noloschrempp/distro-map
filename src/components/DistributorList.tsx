@@ -127,7 +127,9 @@ export default function DistributorList({
               className="overflow-hidden border-b border-slate-800 last:border-b-0"
             >
               <button
-                className="w-full px-5 py-3.5 flex justify-between items-start cursor-pointer hover:bg-slate-800/50 transition-colors text-left"
+                className={`w-full px-5 py-3.5 flex justify-between items-start cursor-pointer hover:bg-slate-800/50 transition-colors text-left ${
+                  expandedDistributor === distributor.id ? 'bg-slate-800/50' : ''
+                }`}
                 onClick={() => handleDistributorClick(distributor)}
               >
                 <div className="flex items-start gap-3">

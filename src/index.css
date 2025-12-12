@@ -143,9 +143,7 @@
 }
 
 /* Hover effects for clickable items */
-.distributor-list > div:hover {
-  background-color: #f9fafb;
-}
+/* Removed light theme hover - using dark theme hover from component instead */
 
 /* Animation for scroll indicator */
 @keyframes gentle-bounce {
