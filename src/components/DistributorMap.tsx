@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMap } from 'rea
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Phone } from 'lucide-react';
+import { Phone, MapPin } from 'lucide-react';
 
 interface DistributorMapProps {
   distributors: Distributor[];
@@ -459,24 +459,65 @@ function DistributorMap({
             >
               <Popup className="distributor-popup">
                 <div className="p-4">
-                  <h3 className="text-lg font-semibold">{distributor.distributor}</h3>
-                  <p className="text-gray-600">{distributor.name}</p>
-                  <div className="mt-2">
-                    <p>{distributor.address_line_1}</p>
-                    <p>{distributor.address_city}, {distributor.address_state} {distributor.postal_code}</p>
+                  {/* Header - Distributor name */}
+                  <h3 className="text-lg font-semibold text-gray-900">{distributor.distributor}</h3>
+                  <p className="text-gray-600 text-sm">{distributor.name}</p>
+
+                  {/* Address - Clickable Google Maps link */}
+                  <div className="mt-3 flex items-start gap-2">
+                    <MapPin size={16} className="text-gray-400 mt-0.5 flex-shrink-0" />
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                        `${distributor.address_line_1}, ${distributor.address_city}, ${distributor.address_state} ${distributor.postal_code}`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-700 hover:text-blue-600 transition-colors text-sm leading-tight"
+                    >
+                      <div>{distributor.address_line_1}</div>
+                      {distributor.address_line_2 && (
+                        <div>{distributor.address_line_2}</div>
+                      )}
+                      <div className="text-gray-500">
+                        {distributor.address_city}, {distributor.address_state} {distributor.postal_code}
+                      </div>
+                    </a>
                   </div>
+
+                  {/* Phone number */}
                   {distributor.contact_phone && (
-                    <p className="mt-2">
-                      <Phone size={14} className="inline mr-1" />
-                      <a href={`tel:${distributor.contact_phone}`} className="text-blue-600 hover:underline">
+                    <div className="mt-3 flex items-center gap-2">
+                      <Phone size={16} className="text-gray-400 flex-shrink-0" />
+                      <a
+                        href={`tel:${distributor.contact_phone}`}
+                        className="text-blue-600 hover:text-blue-700 hover:underline text-sm"
+                      >
                         {distributor.contact_phone}
                       </a>
-                    </p>
+                    </div>
                   )}
+
+                  {/* Distance */}
                   {distributor.distance && (
-                    <p className="mt-2 text-sm text-gray-500">
+                    <p className="mt-3 text-sm text-gray-500">
                       Distance: {distributor.distance.toFixed(1)} miles
                     </p>
+                  )}
+
+                  {/* Delivery/Pickup Pills */}
+                  {(distributor.fulfill_delivery || distributor.fulfill_pickup) && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {distributor.fulfill_delivery && (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-600 border border-blue-500/30">
+                          Delivery Available
+                        </span>
+                      )}
+                      {distributor.fulfill_pickup && (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-600 border border-green-500/30">
+                          Pickup Available
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
               </Popup>

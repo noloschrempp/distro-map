@@ -43,6 +43,24 @@ export default function DistributorFilter({
     };
   }, [distributors, currentProgram]);
 
+  // Auto-clear invalid selections when program filter changes
+  useEffect(() => {
+    if (selectedDistributors.length === 0) return;
+
+    // Check if any selected distributors are no longer in the available list
+    const invalidSelections = selectedDistributors.filter(
+      selected => !allDistributorNames.includes(selected)
+    );
+
+    // If there are invalid selections, remove them
+    if (invalidSelections.length > 0) {
+      const validSelections = selectedDistributors.filter(
+        selected => allDistributorNames.includes(selected)
+      );
+      onFilterChange(validSelections);
+    }
+  }, [allDistributorNames, selectedDistributors, onFilterChange]);
+
   // Filter distributor names based on search
   const filteredNames = useMemo(() => {
     if (!searchQuery) return allDistributorNames;
